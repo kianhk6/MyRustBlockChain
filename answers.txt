@@ -1,0 +1,26 @@
+1.
+In Rust, this is a way to ensure that a type is safe to be sent to other threads for concurrent processing.
+When a type implements the Send trait, it guarantees that it is free from data races and safe to be 
+shared between threads without causing undefined behavior due to data corruption. 
+It is important to ensure that types sent across threads are thread-safe to avoid potential issues like race conditions.
+
+2.
+If we used self.workers.iter(), we would only be getting references to the workers, 
+but the vector would still contain them all at the end of the loop. More importantly, 
+we wouldn't be able to call .join() on the workers, because .iter()
+only gives us immutable references and .join() requires ownership (which drain(..) gives us).
+
+3.
+When we do `sync::Arc::new(&self)`, we are trying to create an `Arc` that wraps a reference to `self` (`&Block`). 
+The lifetime of this reference is tied to the scope of the function `mine_range`. 
+Once `mine_range` finishes, the reference becomes invalid. 
+This would be a problem if other threads were still trying to use it.
+
+In contrast, `sync::Arc::new(self.clone())` is creating an `Arc` that wraps a clone of `self` (`Block`). 
+This is a completely separate instance that is not tied to the scope of `mine_range` and 
+can be safely used by other threads even after `mine_range` finishes. 
+This is typically the kind of pattern you'll see when sharing data across threads in Rust.
+
+To put it simply, the `Arc<&Block>` is only valid within the scope where the `Block` was defined. 
+Once it goes out of scope, the reference is invalid, and Rust's borrowing checker will prevent this from compiling. 
+`Arc<Block>` clones the block, so it's independent of the original `Block` and can be safely shared among threads.
