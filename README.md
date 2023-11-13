@@ -1,5 +1,4 @@
 ﻿# MyRustBlockChain
-# README for Blockchain Project
 
 ## Introduction
 This project involves the creation of a simple blockchain system, incorporating proof-of-work which requires computational effort for validating blocks. A code skeleton with structure and hints is provided as a starting point.
